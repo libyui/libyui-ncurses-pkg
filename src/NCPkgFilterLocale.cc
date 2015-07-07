@@ -206,6 +206,7 @@ void NCPkgLocaleTable::toggleStatus()
     {
 	zypp::getZYpp()->pool().addRequestedLocale( myLocale.locale() );
     }
+    zypp::getZYpp()->resolver()->resolvePool();
     packager->showPackageDependencies( true );
 
     zypp::getZYpp()->resolver()->setIgnoreAlreadyRecommended( old_iar );
