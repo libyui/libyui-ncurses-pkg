@@ -195,6 +195,9 @@ void NCPkgLocaleTable::toggleStatus()
 
     yuiMilestone() << "Toggle status of: " << myLocale.locale().code() << endl;
 
+    bool old_iar = zypp::getZYpp()->resolver()->ignoreAlreadyRecommended();
+    zypp::getZYpp()->resolver()->setIgnoreAlreadyRecommended( false );
+
     if ( zypp::getZYpp()->pool().isRequestedLocale( myLocale.locale() ) )
     {
 	zypp::getZYpp()->pool().eraseRequestedLocale( myLocale.locale() );
@@ -204,6 +207,8 @@ void NCPkgLocaleTable::toggleStatus()
 	zypp::getZYpp()->pool().addRequestedLocale( myLocale.locale() );
     }
     packager->showPackageDependencies( true );
+
+    zypp::getZYpp()->resolver()->setIgnoreAlreadyRecommended( old_iar );
 
     cellChanged( index, 0,  status( myLocale.locale() ) );
 }
