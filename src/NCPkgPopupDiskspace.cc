@@ -1,6 +1,7 @@
 /****************************************************************************
 |
 | Copyright (c) [2002-2011] Novell, Inc.
+| Copyright (c) 2018 SUSE LLC
 | All Rights Reserved.
 |
 | This program is free software; you can redistribute it and/or
@@ -107,6 +108,52 @@ NCPkgDiskspace::~NCPkgDiskspace()
 {
 }
 
+
+namespace
+{
+
+    // Some partitions are skipped for the popup.
+
+    bool
+    skip_partition( const ZyppPartitionDu & partition )
+    {
+	if (partition.readonly)
+	{
+	    yuiMilestone() << "skipping " << partition.dir << " due to read-only flag" << endl;
+	    return true;
+	}
+
+	// Workaround for partitions equal or larger than 8 EiB (see bug
+	// #991090).
+
+	long long used_size = partition.used_size * FSize::KB; // before package installation
+	long long pkg_size = partition.pkg_size * FSize::KB;   // after package installation
+	long long total_size = partition.total_size * FSize::KB;
+
+	// Skip partition if the used size after package installation is
+	// smaller or equal to the used size before package installation.
+
+	if (pkg_size <= used_size)
+	{
+	    yuiMilestone() << "skipping " << partition.dir << " due to not being used" << endl;
+	    return true;
+	}
+
+	// Skip partition if free size before package installation is negative
+	// since that indicates overflows.
+
+	if (total_size - used_size < 0)
+	{
+	    yuiMilestone() << "skipping " << partition.dir << " due to negative value" << endl;
+	    return true;
+	}
+
+	return false;
+    }
+
+}
+
+
 ///////////////////////////////////////////////////////////////////
 //
 //
@@ -121,14 +168,13 @@ void NCPkgDiskspace::fillPartitionTable()
     partitions->deleteAllItems();		// clear table
 
     YTableItem * newItem;
-    int i = 0;
 
     zypp::ZYpp::Ptr z = zypp::getZYpp();
     ZyppDuSet du = z->diskUsage ();
     ZyppDuSetIterator
 	b = du.begin (),
-	e = du.end (),
-	it;
+	e = du.end ();
+
     if (b == e)
     {
 	// retry after detecting from the target
@@ -138,9 +184,9 @@ void NCPkgDiskspace::fillPartitionTable()
 	e = du.end ();
     }
 
-    for (it = b; it != e; ++it)
+    for (ZyppDuSetIterator it = b; it != e; ++it)
     {
-	if (it->readonly)
+	if (skip_partition (*it))
 	    continue;
 
 	zypp::ByteCount pkg_used (it->pkg_size * 1024);
@@ -156,10 +202,9 @@ void NCPkgDiskspace::fillPartitionTable()
 				  usedPercent( it->pkg_size, it->total_size ) );
 
         partitions->addItem( newItem );
-
-	i++;
     }
 }
+
 
 ///////////////////////////////////////////////////////////////////
 //
@@ -191,7 +236,7 @@ std::string NCPkgDiskspace::checkDiskSpace()
 
     for (it = b; it != e; ++it)
     {
-	if (it->readonly)
+	if (skip_partition (*it))
 	    continue;
 
 	zypp::ByteCount pkg_available = (it->total_size - it->pkg_size) * 1024;
@@ -224,6 +269,9 @@ std::string NCPkgDiskspace::checkDiskSpace()
 //
 void NCPkgDiskspace::checkRemainingDiskSpace( const ZyppPartitionDu & partition )
 {
+    if ( skip_partition ( partition ) )
+	return;
+
     FSize usedSize ( partition.pkg_size, FSize::K );
     FSize totalSize ( partition.total_size, FSize::K );
 
@@ -262,7 +310,6 @@ void NCPkgDiskspace::checkRemainingDiskSpace( const ZyppPartitionDu & partition 
 
     if ( free < OVERFLOW_MB_PROXIMITY )
 	overflowWarning.enterProximity();
-
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -643,4 +690,3 @@ NCPkgWarningRangeNotifier::logSettings() const
     yuiMilestone() << "has been close: " << (_hasBeenClose?"true":"false") << endl;
     yuiMilestone() << "warning posted: " << (_warningPosted?"true":"false") << endl;
 }
-
