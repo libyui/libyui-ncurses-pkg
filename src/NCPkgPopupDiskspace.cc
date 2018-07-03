@@ -112,13 +112,13 @@ NCPkgDiskspace::~NCPkgDiskspace()
 }
 
 namespace {
-    std::string formatSize(unsigned long long size, int width = 0)
+    std::string formatSize(double size, int width = 0)
     {
         // FSize::bestUnit does not work for huge numbers so only use it for small once
         FSize::Unit unit = (size >= FSize::TB) ? FSize::T : FSize(size).bestUnit();
         int prec = unit == FSize::B ? 0 : 2;
 
-        return zypp::str::form( "%*.*f %s", width, prec, double(size) / FSize::factor(unit), FSize::unit(unit));
+        return zypp::str::form( "%*.*f %s", width, prec, size / FSize::factor(unit), FSize::unit(unit));
     }
 
     /**
@@ -175,11 +175,9 @@ void NCPkgDiskspace::fillPartitionTable()
 	    if (item.readonly)
 	       continue;
 
-        unsigned long long pkg_used = item.pkg_size * FSize::KB;
-        // still not perfect, this might underflow if the size of selected
-        // packages to install is bigger than the total disk size :-(
-        unsigned long long pkg_available = (item.total_size - item.pkg_size) * FSize::KB;
-        unsigned long long total = item.total_size * FSize::KB;
+        double pkg_used = double(item.pkg_size) * FSize::KB;
+        double pkg_available = double(item.total_size - item.pkg_size) * FSize::KB;
+        double total = double(item.total_size) * FSize::KB;
 
 	    YTableItem * newItem = new YTableItem( item.dir,
 				  formatSize(pkg_used, 8),
@@ -229,8 +227,8 @@ std::string NCPkgDiskspace::checkDiskSpace()
 	    text += " ";
 	    text += NCPkgStrings::MoreText();
 	    text += " ";
-        // convert to a positive number before formatting
-	    text += formatSize(-pkg_available * FSize::KB);
+        // make positive, use double to avoid overflow
+	    text += formatSize(-1.0 * double(pkg_available) * FSize::KB);
 	    text += " ";
 	    text += NCPkgStrings::MoreSpaceText();
 	    text += "<br>";
