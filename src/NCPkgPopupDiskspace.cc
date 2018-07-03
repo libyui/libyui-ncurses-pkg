@@ -114,7 +114,7 @@ NCPkgDiskspace::~NCPkgDiskspace()
 namespace {
     std::string formatSize(double size, int width = 0)
     {
-        // FSize::bestUnit does not work for huge numbers so only use it for small once
+        // FSize::bestUnit does not work for huge numbers so only use it for small ones
         FSize::Unit unit = (size >= FSize::TB) ? FSize::T : FSize(size).bestUnit();
         int prec = unit == FSize::B ? 0 : 2;
 
