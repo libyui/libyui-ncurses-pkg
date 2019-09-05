@@ -1,7 +1,7 @@
 #
 # spec file for package libyui-ncurses-pkg
 #
-# Copyright (c) 2015 SUSE LINUX GmbH, Nuernberg, Germany.
+# Copyright (c) 2019 SUSE LINUX GmbH, Nuernberg, Germany.
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -17,10 +17,12 @@
 
 
 Name:           libyui-ncurses-pkg
-Version:        2.49.0
+Version:        2.49.1
 Release:        0
 Source:         %{name}-%{version}.tar.bz2
 
+# NOTE: when increasing the so version add also a new Obsoletes dependency
+# at [*] below
 %define so_version 10
 %define bin_name %{name}%{so_version}
 
@@ -41,7 +43,7 @@ BuildRequires:  %{libzypp_devel_version}
 
 Url:            http://github.com/libyui/
 Summary:        Libyui - yast2 package selector widget for the ncurses UI
-License:        LGPL-2.1 or LGPL-3.0
+License:        LGPL-2.1-only OR LGPL-3.0-only
 Group:          System/Libraries
 
 %description
@@ -56,6 +58,9 @@ Provides:       %{name} = %{version}
 
 Provides:       yast2-ncurses-pkg = 2.42.0
 Obsoletes:      yast2-ncurses-pkg < 2.42.0
+
+# [*] force removal of the old packages, install the newer version (bsc#1148622)
+Obsoletes:      libyui-ncurses-pkg9
 
 Provides:       libyui_pkg
 Supplements:    packageand(libyui-ncurses:yast2-packager)
@@ -79,9 +84,9 @@ Requires:       libboost_headers-devel
 %else
 Requires:       boost-devel
 %endif
+Requires:       %{bin_name} = %{version}
 Requires:       glibc-devel
 Requires:       libstdc++-devel
-Requires:       %{bin_name} = %{version}
 
 Url:            http://github.com/libyui/
 Summary:        Libyui-ncurses-pkg header files
