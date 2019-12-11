@@ -133,6 +133,12 @@ bool NCPkgFilterClassification::showPackages( )
         {
            match = check( selectable, tryCastToZyppPkg( selectable->installedObj() ), group );
         }
+        // otherwise display the candidate object (the "best" version)
+        else if ( selectable->hasCandidateObj() )
+        {
+           match = check( selectable, tryCastToZyppPkg( selectable->candidateObj() ), group );
+        }
+
         // And then check the pick list which contain all availables and all objects for multi
         // version packages and the installed obj if there isn't same version in a repo.
         if ( !match )
