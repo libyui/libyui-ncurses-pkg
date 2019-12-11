@@ -71,11 +71,11 @@ NCPkgFilterClassification::NCPkgFilterClassification( YWidget *parent, NCPackage
     ,packager(pkg)
 {
     // fill seclection box
-    recommended = new YItem( _("Recommended Packages") );
-    addItem( recommended );
-
     suggested = new YItem( _("Suggested Packages") );
     addItem( suggested );
+
+    recommended = new YItem( _("Recommended Packages") );
+    addItem( recommended );
 
     orphaned = new YItem( _("Orphaned Packages") );
     addItem( orphaned );
