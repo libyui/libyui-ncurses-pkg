@@ -1,41 +1,14 @@
-# LibYUI - The Ncurses Package Management Widget
 
-[![Build Status](https://travis-ci.org/libyui/libyui-ncurses-pkg.svg?branch=master
-)](https://travis-ci.org/libyui/libyui-ncurses-pkg)
+Obsoleted Repository
+====================
 
-[Libyui](https://github.com/libyui/libyui) is a widget abstraction library
-providing Qt, GTK and ncurses frontends. Originally it was developed for
-[YaST](https://yast.github.io/) but it can be used in any independent project.
+**This repository is obsoleted and is not used anymore.**
 
-This module provides the ncurses version of the YaST Package Selector which
-is used to update, install or delete individual packages.
+All the code has been merged into the new [libyui](https://github.com/libyui/libyui) repository. For now on, please use that repository.
 
-An overview about package handling in general is available on
-[Wiki](https://github.com/libyui/libyui-ncurses-pkg/wiki).
-The wiki page also describes common use cases and how to solve the task in
-YaST Software Management (for Qt as well as ncurses). Also included is the
-information about related configuration files.
 
-For details about reported bugs and issues see wiki page
-[background](https://github.com/libyui/libyui-ncurses-pkg/wiki/background).
+GIT
+---
 
-### Building
+If you want to see the last state check the [*master_old*](../../tree/master_old) branch.
 
-Libyui uses CMake, driven by a slightly complex set of
-[CMakefiles](https://github.com/libyui/libyui/tree/master/buildtools). For
-reproducible builds it is best to use the [libyui-rake](
-https://github.com/libyui/libyui-rake) Ruby gem like the [Jenkins CI](
-https://ci.opensuse.org/view/libyui/) jobs do.
-
-It can be installed from [rubygems.org](https://rubygems.org/gems/libyui-rake/)
-using this command (Ruby needs to be installed in the system):
-
-```
-gem install libyui-rake
-```
-
-Then to build the package run:
-
-```
-rake osc:build
-```
